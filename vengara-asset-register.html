@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vengara Grama Panchayat Asset Register</title>
+<style>
+:root{color-scheme:light dark;--bg:#f3f5f4;--cd:#fff;--tx:#18241f;--mu:#62706a;--bd:#d6dcd9;--pr:#0d5f52;--pt:#fff;--rd:#b8372a;--am:#a76a0b;--gn:#1a7a45;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121816;--cd:#1b2420;--tx:#e6ece9;--mu:#98a6a0;--bd:#2d3a35;--pr:#38b9a3;--pt:#04201b;--rd:#f0806f;--am:#e2b252;--gn:#62cb8c}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#121816;--cd:#1b2420;--tx:#e6ece9;--mu:#98a6a0;--bd:#2d3a35;--pr:#38b9a3;--pt:#04201b;--rd:#f0806f;--am:#e2b252;--gn:#62cb8c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:var(--pr);color:var(--pt);padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+header h1{font-size:17px;margin:0;line-height:1.2}header small{display:block;opacity:.85}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 14px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{border:1px solid var(--bd);background:var(--cd);border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+button.pri,nav button.on{background:var(--pr);color:var(--pt);border-color:var(--pr)}
+header button{background:transparent;color:var(--pt);border-color:currentColor;padding:4px 10px;font-size:13px}
+input,select,textarea{width:100%;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--cd)}
+:focus-visible{outline:2px solid var(--pr);outline-offset:1px}
+label{display:block;margin:8px 0 2px;font-size:13px;color:var(--mu)}
+main{padding:0 14px 20px;max-width:1280px;margin:auto}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.grid .card{text-align:left;color:var(--tx);white-space:normal}.grid b{display:block;font-size:26px}
+.tw{overflow-x:auto;margin-top:10px;padding:0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd);vertical-align:top}
+th{color:var(--mu);white-space:nowrap;font-weight:600}
+.bar{display:flex;gap:8px;flex-wrap:wrap}.bar input{flex:1;min-width:140px}
+.chip{padding:1px 8px;border-radius:99px;font-size:12px;border:1px solid currentColor;white-space:nowrap}
+.red{color:var(--rd)}.amb{color:var(--am)}.gn{color:var(--gn)}
+dialog{border:1px solid var(--bd);border-radius:10px;background:var(--cd);color:var(--tx);width:min(520px,94vw);max-height:90vh}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.err{color:var(--rd);margin:6px 0 0}
+#lg{max-width:340px;margin:12vh auto 0;padding:0 14px}
+#vw{max-width:560px;margin:4vh auto;padding:0 14px}
+#dk{border:1px solid var(--bd);border-radius:8px;padding:0 10px 10px;margin-top:10px}#dk h4{margin:10px 0 0}
+@media print{body>*:not(dialog){display:none}dialog .noprint{display:none}dialog{border:0;position:static;width:auto}}
+</style></head><body>
+<div id="lg" hidden><div class="card"><h2 style="margin:0">Vengara Grama Panchayat</h2><p style="margin:2px 0 8px;color:var(--mu)">Asset Register: sign in to continue</p>
+<form id="lf"><label for="lu">User name</label><input id="lu" autocomplete="username" required><label for="lp">Password</label><input id="lp" type="password" autocomplete="current-password" required><p class="err" id="le"></p><div class="row"><button class="pri" style="width:100%">Sign in</button></div></form></div></div>
+<div id="ap" hidden>
+<header><h1>Vengara Grama Panchayat<small>Asset Register</small></h1><div class="bar"><button onclick="showReport()">Reports</button><button onclick="showBackup()">Backup</button><button onclick="showAcct()">Change login</button><button onclick="logout()">Sign out</button></div></header>
+<nav id="nv"></nav><main id="mn"></main></div>
+<dialog id="dg"></dialog>
+<div id="vw" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),D=$('#dg');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TD=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const dd=d=>(new Date(d)-new Date(TD))/864e5,fmt=d=>d?d.split('-').reverse().join('-'):'';
+const chip=(t,c)=>`<span class="chip ${c}">${esc(t)}</span>`;
+const lsg=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+const lss=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return 1}catch(e){return 0}};
+const blank=()=>({hw:[],amc:[],cmp:[],srv:[],net:[],seq:{}});
+let DB={...blank(),...lsg('vgp_db')},V='dash',Q='',AU=0;
+const save=()=>{if(!lss('vgp_db',DB))alert('Could not save: browser storage is not available.')};
+async function hash(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('vgp:'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+const hn=id=>{const h=DB.hw.find(x=>x.id==id);return h?`${h.id}: ${h.brand} ${h.model||''} (${h.type})`:''};
+const R={
+hw:{t:'Hardware',p:'HW',f:[
+['type','Type','select',['Desktop computer','Laptop','Printer','Scanner','UPS','Inverter','Network device','Digital equipment','Other'],1],
+['brand','Brand','text',0,1],['model','Model','text'],['serial','Serial number','text'],
+['specs','Specifications','textarea'],['supply','Date of supply','date'],['supplier','Name of supplier','text'],
+['warranty','Warranty up to','date'],['loc','Section where used','text'],
+['status','Status','select',['Working','Under repair','Condemned'],1],
+['cpuBrand','CPU brand','text',0,0,1],['cpuModel','CPU model','text',0,0,1],['cpuSerial','CPU serial number','text',0,0,1],['cpuSpecs','CPU specifications (processor, RAM, storage)','textarea',0,0,1],
+['monBrand','Monitor brand','text',0,0,1],['monModel','Monitor model','text',0,0,1],['monSerial','Monitor serial number','text',0,0,1],['monSize','Monitor size and specifications','text',0,0,1]],
+c:['id','type','brand','model','serial','specs',['_d','CPU and monitor',x=>x.type=='Desktop computer'?esc(dk(x)):''],'supply','supplier',['warranty','Warranty up to',x=>x.warranty?chip(fmt(x.warranty),dd(x.warranty)<0?'red':'gn'):''],'loc','status']},
+amc:{t:'AMC',p:'AMC',f:[
+['hw','Linked hardware','hw',0,1],['vendor','AMC company / vendor','text',0,1],['start','Start date','date',0,1],['end','End date','date',0,1],
+['amount','Amount (Rs.)','number'],['remarks','Remarks','textarea']],
+c:['id','hw','vendor','start','end','amount',['_s','Status',x=>dd(x.end)<0?chip('Expired','red'):dd(x.end)<=30?chip('Ending soon','amb'):chip('Active','gn')],'remarks']},
+cmp:{t:'Complaint',p:'CMP',f:[
+['hw','Linked hardware','hw',0,1],['date','Complaint date','date',0,1],['by','Reported by','text'],['desc','Complaint','textarea',0,1],
+['status','Status','select',['Open','In progress','Resolved'],1],['resDate','Resolved on','date']],
+c:['id','date','hw','by','desc',['status','Status',x=>chip(x.status,x.status=='Resolved'?'gn':x.status=='Open'?'red':'amb')],'resDate']},
+srv:{t:'Service',p:'SRV',f:[
+['hw','Linked hardware','hw'],['date','Service date','date',0,1],['desc','Service done','textarea',0,1],['by','Serviced by','text'],
+['cost','Cost (Rs.)','number'],['next','Next service due','date']],
+c:['id','date','hw','desc','by','cost','next']},
+net:{t:'Connectivity',p:'NET',f:[
+['provider','Provider','text',0,1],['type','Connection type','select',['Broadband','FTTH','Leased line','Mobile data','Other'],1],
+['cid','Connection / account no.','text'],['loc','Location / office','text'],['speed','Speed (Mbps)','number',0,1],
+['status','Status','select',['Active','Inactive'],1],['remarks','Remarks','textarea']],
+c:['id','provider','type','cid','loc','speed','status','remarks']}
+};
+function modal(t,b,ok,fn){D.innerHTML=`<form><h3 style="margin:0">${t}</h3>${b}<p class="err" id="me"></p><div class="row noprint"><button type="button" onclick="D.close()">Cancel</button><button class="pri">${ok}</button></div></form>`;
+D.firstChild.onsubmit=async e=>{e.preventDefault();const m=await fn(new FormData(e.target));if(m)$('#me').textContent=m;else D.close()};D.showModal()}
+const cell=(r,c,x)=>{if(Array.isArray(c))return c[2](x);const f=r.f.find(f=>f[0]==c),v=x[c];
+if(c=='id'||!f)return esc(v);if(f[2]=='date')return fmt(v);
+if(f[2]=='hw')return v?esc(hn(v)||'(deleted)'):'<span style="color:var(--mu)">Not linked</span>';return esc(v)};
+function list(k){
+const r=R[k],rows=DB[k].filter(x=>(Object.values(x).join(' ')+' '+(x.hw?hn(x.hw):'')).toLowerCase().includes(Q));
+const th=r.c.map(c=>`<th>${Array.isArray(c)?c[1]:c=='id'?'ID':r.f.find(f=>f[0]==c)[1]}</th>`).join('');
+const tb=rows.map(x=>`<tr>${r.c.map(c=>`<td>${cell(r,c,x)}</td>`).join('')}<td style="white-space:nowrap">${k=='hw'?`<button onclick="showQR('${x.id}')">QR</button> `:''}<button onclick="openForm('${k}','${x.id}')">Edit</button> <button onclick="delRow('${k}','${x.id}')">Delete</button></td></tr>`).join('');
+$('#mn').innerHTML=`<h2 style="margin:4px 0 10px">${r.t} Register</h2><div class="bar"><input id="q" placeholder="Search…" value="${esc(Q)}"><button class="pri" onclick="openForm('${k}')">+ Add ${r.t}</button></div><div class="tw card"><table><thead><tr>${th}<th></th></tr></thead><tbody>${tb||'<tr><td colspan="20">No records yet.</td></tr>'}</tbody></table></div>`;
+$('#q').oninput=e=>{Q=e.target.value.toLowerCase();list(k);const i=$('#q');i.focus();i.setSelectionRange(99,99)}}
+function dash(){
+const W=DB.hw.filter(x=>x.warranty&&dd(x.warranty)>=0&&dd(x.warranty)<=30).length,
+A=DB.amc.filter(x=>dd(x.end)>=0).length,AE=DB.amc.filter(x=>dd(x.end)>=0&&dd(x.end)<=30).length,
+C=DB.cmp.filter(x=>x.status!='Resolved').length;
+const c=[['hw','Hardware items',DB.hw.length],['hw','Warranty ending in 30 days',W],['amc','AMC active',A],['amc','AMC ending in 30 days',AE],['cmp','Open complaints',C],['srv','Service entries',DB.srv.length],['net','Internet connections',DB.net.length]];
+$('#mn').innerHTML=`<h2 style="margin:4px 0 10px">Dashboard</h2><div class="grid">${c.map(([k,l,n])=>`<button class="card" onclick="goTo('${k}')"><b>${n}</b>${l}</button>`).join('')}</div>`}
+function draw(){
+$('#nv').innerHTML=[['dash','Dashboard'],...Object.keys(R).map(k=>[k,R[k].t])].map(([k,l])=>`<button class="${k==V?'on':''}" onclick="goTo('${k}')">${l}</button>`).join('');
+V=='dash'?dash():list(V)}
+const goTo=k=>{V=k;Q='';draw()};
+function openForm(k,id){
+const r=R[k],x=id?DB[k].find(y=>y.id==id):{};
+const inp=([n,l,t,o,rq])=>{let h;
+if(t=='select')h=`<select name="${n}"${rq?' required':''}${n=='type'&&k=='hw'?` onchange="$('#dk').hidden=this.value!='Desktop computer'"`:''}>${o.map(s=>`<option${s==x[n]?' selected':''}>${s}</option>`).join('')}</select>`;
+else if(t=='hw')h=`<select name="${n}"${rq?' required':''}><option value="">${rq?(DB.hw.length?'Select hardware…':'Add hardware first'):'Not linked to hardware'}</option>${DB.hw.map(y=>`<option value="${y.id}"${y.id==x[n]?' selected':''}>${esc(hn(y.id))}</option>`).join('')}</select>`;
+else if(t=='textarea')h=`<textarea name="${n}" rows="2">${esc(x[n])}</textarea>`;
+else h=`<input name="${n}" type="${t}"${t=='number'?' min="0" step="any"':''}${rq?' required':''}${n=='loc'&&k=='hw'?' list="secs"':''} value="${esc(x[n])}">`;
+return`<label>${l}${rq?' *':''}</label>${h}`};
+modal((id?'Edit ':'Add ')+r.t,r.f.filter(g=>!g[5]).map(inp).join('')+(k=='hw'?`<div id="dk"${x.type=='Desktop computer'?'':' hidden'}><h4>CPU and monitor details</h4>${r.f.filter(g=>g[5]).map(inp).join('')}</div><datalist id="secs">${[...new Set(DB.hw.map(y=>y.loc).filter(Boolean))].map(s=>`<option value="${esc(s)}">`).join('')}</datalist>`:''),'Save',f=>{
+const o=Object.fromEntries(f);
+if(id)Object.assign(x,o);else{const n=(DB.seq[k]||0)+1;DB.seq[k]=n;DB[k].push({id:r.p+'-'+String(n).padStart(3,'0'),...o})}
+save();draw()})}
+function delRow(k,id){modal('Delete record',`<p>${id} will be removed permanently.</p>`,'Delete',()=>{DB[k]=DB[k].filter(y=>y.id!=id);save();draw()})}
+const j=(...a)=>a.filter(Boolean).join(' ');
+const dk=x=>`CPU: ${j(x.cpuBrand,x.cpuModel)}${x.cpuSerial?' (S/N '+x.cpuSerial+')':''}${x.cpuSpecs?', '+x.cpuSpecs:''}; Monitor: ${j(x.monBrand,x.monModel)}${x.monSerial?' (S/N '+x.monSerial+')':''}${x.monSize?', '+x.monSize:''}`;
+const table=(k,p)=>{const r=R[k],f=p?r.f.filter(g=>!g[5]):r.f,ex=p&&k=='hw',
+v=(x,g)=>g[2]=='date'?fmt(x[g[0]]):g[2]=='hw'?(x[g[0]]?hn(x[g[0]])||'(deleted)':'Not linked'):x[g[0]]??'';
+return[['ID',...f.map(g=>g[1]),...(ex?['CPU and monitor']:[])],...DB[k].map(x=>[x.id,...f.map(g=>v(x,g)),...(ex?[x.type=='Desktop computer'?dk(x):'']:[])])]};
+const xls=ks=>{const w=XLSX.utils.book_new();ks.forEach(k=>XLSX.utils.book_append_sheet(w,XLSX.utils.aoa_to_sheet(table(k)),R[k].t));XLSX.writeFile(w,'Vengara-GP-Asset-Register.xlsx')};
+const pdf=ks=>{const d=new window.jspdf.jsPDF({orientation:'landscape',format:'a4'});
+ks.forEach((k,i)=>{if(i)d.addPage();d.setFontSize(14);d.text('Vengara Grama Panchayat: '+R[k].t+' Register',14,14);d.setFontSize(9);d.text('Generated on '+fmt(TD),14,20);
+const[h,...b]=table(k,1);d.autoTable({head:[h],body:b.length?b:[['No records yet']],startY:24,styles:{fontSize:7,cellPadding:1.5},headStyles:{fillColor:[13,95,82]}})});
+d.save('Vengara-GP-Asset-Register.pdf')};
+function showReport(){modal('Reports',`<label>Register</label><select id="rr"><option value="">All registers</option>${Object.keys(R).map(k=>`<option value="${k}">${R[k].t} Register</option>`).join('')}</select><div class="row" style="justify-content:flex-start"><button type="button" onclick="runReport('xlsx')">Excel</button><button type="button" onclick="runReport('pdf')">PDF</button></div>`,'Close',()=>{})}
+function runReport(t){const k=$('#rr').value,ks=k?[k]:Object.keys(R);try{t=='pdf'?pdf(ks):xls(ks)}catch(e){$('#me').textContent='Could not create the file. Check the internet connection and try again.'}}
+const qrUrl=(x,b)=>b.split('#')[0]+'#v='+btoa(unescape(encodeURIComponent(JSON.stringify([x.id,...R.hw.f.map(f=>x[f[0]]||'')])))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+function showQR(id){const x=DB.hw.find(y=>y.id==id),base=(lsg('vgp_cfg')||{}).base||location.href.split('#')[0];let img='';
+try{const q=qrcode(0,'L');q.addData(qrUrl(x,base));q.make();img=`<img alt="QR code for ${id}" src="${q.createDataURL(5,8)}" style="display:block;margin:10px auto;max-width:100%;image-rendering:pixelated">`}
+catch(e){img='<p class="err">Could not create the QR code. Check the internet connection, or shorten the specifications.</p>'}
+modal('QR code '+id,`${img}<p style="text-align:center;margin:0"><b>${esc(id)}</b><br>${esc(j(x.brand,x.model))}${x.loc?'<br>'+esc(x.loc):''}</p><div class="noprint"><label>Web address where this software is hosted (the QR opens this address)</label><input name="b" placeholder="https://" value="${esc(base)}"><p style="font-size:12px;color:var(--mu)">The QR shows the details saved today. Create it again after editing.</p><button type="button" onclick="window.print()">Print</button></div>`,'Update QR',f=>{lss('vgp_cfg',{base:f.get('b').trim()});setTimeout(()=>showQR(id),0)})}
+function viewer(b){let a;try{a=JSON.parse(decodeURIComponent(escape(atob(b.replace(/-/g,'+').replace(/_/g,'/')))))}catch(e){}
+$('#lg').hidden=$('#ap').hidden=true;const v=$('#vw');v.hidden=false;
+if(!a){v.innerHTML='<div class="card">This QR code could not be read.</div>';return}
+const x={id:a[0]};R.hw.f.forEach((f,i)=>x[f[0]]=a[i+1]);
+const rows=[['Asset ID',x.id],...R.hw.f.filter(f=>x[f[0]]&&(!f[5]||x.type=='Desktop computer')).map(f=>[f[1],f[2]=='date'?fmt(x[f[0]]):x[f[0]]])];
+v.innerHTML=`<div class="card"><h2 style="margin:0">Vengara Grama Panchayat</h2><p style="margin:2px 0 8px;color:var(--mu)">Asset details</p><div class="tw" style="margin:0"><table>${rows.map(([l,t])=>`<tr><th>${esc(l)}</th><td>${esc(t)}</td></tr>`).join('')}</table></div><p style="color:var(--mu);font-size:12px">Details as recorded when this QR code was created.</p></div>`}
+function showBackup(){modal('Backup and restore',`<label>Data is saved in this browser only. Copy this text and keep it safe. To restore, paste saved text here and press Restore.</label><textarea name="d" rows="8" onfocus="this.select()">${esc(JSON.stringify(DB))}</textarea>`,'Restore',f=>{
+try{const d=JSON.parse(f.get('d'));if(!d||!d.hw||!d.seq)throw 0;DB={...blank(),...d};save();draw()}catch(e){return'That text is not a valid backup.'}})}
+function showAcct(){const a=lsg('vgp_auth')||{u:'admin'};modal('Change login',`<label>User name</label><input name="u" required value="${esc(a.u)}"><label>Current password</label><input name="c" type="password" required><label>New password (at least 6 characters)</label><input name="p" type="password" minlength="6" required>`,'Save changes',async f=>{
+if(a.h&&await hash(f.get('c'))!==a.h)return'Current password is wrong.';
+lss('vgp_auth',{u:f.get('u').trim(),h:await hash(f.get('p'))})})}
+async function doLogin(e){e.preventDefault();let a=lsg('vgp_auth');
+if(!a){a={u:'admin',h:await hash('admin123')};lss('vgp_auth',a)}
+if($('#lu').value.trim()===a.u&&await hash($('#lp').value)===a.h){AU=1;try{sessionStorage.setItem('vgp_s','1')}catch(x){}$('#lp').value='';$('#le').textContent='';start()}
+else $('#le').textContent='Incorrect user name or password.'}
+function logout(){AU=0;try{sessionStorage.removeItem('vgp_s')}catch(x){}start()}
+function start(){const m=location.hash.match(/^#v=(.+)/);if(m)return viewer(m[1]);let s=AU;try{s=s||sessionStorage.getItem('vgp_s')}catch(x){}$('#lg').hidden=!!s;$('#ap').hidden=!s;if(s)draw()}
+$('#lf').onsubmit=doLogin;start();
+</script></body></html>
